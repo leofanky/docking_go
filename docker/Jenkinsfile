@@ -1,0 +1,20 @@
+pipeline {
+	agent any
+	stages {
+		stage('Copy artifact') {
+			steps {
+                copyArtifacts filter: 'multygo_master', fingerprintArtifacts: true, projectName: 'multygo/master', selector: lastSuccessful()
+			}
+		}
+		stage('Docker build and upload to ') {
+			steps {
+				script {
+					docker.withRegistry('', 'dockerhub') {					
+						def customImage = docker.build("leostoner420/simple-go-server:latest", "./docker")
+						customImage.push()						
+					}
+				}
+			}
+		}
+	}
+}
